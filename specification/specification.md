@@ -68,3 +68,106 @@ which randomly go up or down.
 # Example output: 1, 0, 1, 2, 3, 2, 3, 2, 1, 0, 1, 0, ...
 ```
 
+
+
+
+## Grammar Specification
+
+The following specification uses EBNF notation with ReGex in `/.../`.
+
+```ebnf
+program     = { line, "\n" }, [ line ];
+line        = [ expression ], [ comment ];
+comment     = "#", { /[^\n]*/ };
+expression  = { whitespace | switch | loop | conditional | other_token };
+whitespace  = "\t" | " ";
+switch      = /{\w*/, { expression, "|" }, expression, "}";
+loop        = /\[\w*/, expression, "]";
+conditional = /(\w*/, { expression, "|" }, expression, ")";
+other_token = /[+\-*\/!&?=><:^`;$@'"~\\.,\\]\w*/;
+```
+
+A **token** uses the following regex expressions;
+
+```regex
+/[+\-*\/!&?=><:^`;$@'"~\\.,|()\[\]{}]\w*/
+```
+
+**Tokens** include `other_token` as well as the **delimiters** of `switch`, `loop`, and `conditional`.
+Examples of these are `)`, `}`, `]` for the **closing delimiters**, 
+`|` for the **separator delimiter**, and `[`, `[i`, `[4`, `(eq0`, `{`, `{r`, etc.
+for the **opening delimiters**.
+
+Each token begins with one of the following **opertator characters**;
+```
++ - * / ! & ? = > < : ^ ` ; $ @ ' " ~ \ . , | ( ) [ ] { }
+```
+
+Each token is made of an operator character followed by alphanumeric characters
+```
+a-Z A-Z 0-9 _
+```
+
+A token ends when whitespace/newline is found, 
+when a new token begins with an operator character, 
+or when a comment starts with `#`.
+
+For example, given `[i{r+3|-value}.]`, 
+the tokens are `[i`, `{r`, `+3`, `|`, `-value`, `}`, `.` and `]`.
+
+A program, once comments are removed, should
+be made of exclusively of a sequence of tokens,
+optionally separated by whitespace and newlines.
+
+
+### Lexical errors
+
+If there's a program where there's a group of alphanumerical characters
+not preceded by an operator character, such as
+```
+# The following is an invalid program
+print("Hello World!")
+```
+then this constitutes lexical errors 
+(in this case in the `print` and `World` words, as everything else is a valid token).
+
+An implementation of EarScript can choose whether to report these errors.
+
+An implementation of EarScript can choose whether characters which are not an operator 
+character or alphanumeric characters, and which are outside of a comment, are
+- Reported as errors.
+- Treated as alphanumeric characters.
+- Ignored.
+
+
+### Syntax errors
+
+If `{`, `[` and `(` are not matched with the appropriate `}`, `]` and `)`,
+this constitutes a syntax error.
+
+An implementation of EarScript can choose whether to report this as a syntax
+error, or whether to recover by doing all of the following;
+- Allow `)`, `]` and `}` to be exchanged with each other.
+- Add as many `)`/`]`/`}` as needed at the end of the program.
+- Ignore any extraeneous `|`, `)`, `]` or `}`.
+
+
+
+
+## Anatomy of a Token
+
+Tokens in EarScript are slightly different compared to tokens in other programming languages.
+Each token has a "head" and a "tail", the head usually has information on what
+the token does, while the tail is an integer or a reference to an integer.
+
+For example, in `+3`, the head is `+` and the tail is `3`.
+
+If a token has no tail, like `+` or `>`, then the tail's value is `1`.
+
+
+
+
+
+
+
+
