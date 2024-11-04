@@ -20,8 +20,10 @@ a good option for a scripting language that is compiled at runtime.
 ### Overview
 
 EarScript's machines contain **tables**, each is a 2 dimensional array of integers.
-Each table has a **pen**, which points at one position within the table.
-The machine also keeps track of which **table** is currently being used.
+Each of these integers is in a **cell**.
+Each table has a **pen**, which points at one cell within the table.
+The machine also keeps track of the **current table**, which is the table currently being used.
+The **current cell** is the cell under the pen of the current table.
 
 EarScript's code primarily has instructions to manipulate these tables,
 through movement of the pen, and manipulation of the numbers the pen points to.
@@ -157,17 +159,153 @@ error, or whether to recover by doing all of the following;
 ## Anatomy of a Token
 
 Tokens in EarScript are slightly different compared to tokens in other programming languages.
-Each token has a "head" and a "tail", the head usually has information on what
+Each token has a **head** and a **tail**, the head usually has information on what
 the token does, while the tail is an integer or a reference to an integer.
 
 For example, in `+3`, the head is `+` and the tail is `3`.
 
-If a token has no tail, like `+` or `>`, then the tail's value is `1`.
+If a token has no tail, like `+` or `>`, then the tail's value is implicitly `1`.
+
+### Operator Character
+
+The first character of a token is its **operator character**. 
+The operator character is always part of the head of the token,
+but in some cases the head of the token may include more
+than just the operator character.
+
+The types of operator characters are
+
+- **Integer operators**
+```
+= + - * / ! & ?
+```
+- **Movement operators**
+```
+$ > < ^ ` : ;
+```
+- **Input/Output operators**
+```
+. ,
+```
+- **Flow operators**
+```
+@ ' " ~
+```
+- **Opening delimiters**
+```
+{ ( [
+```
+- **Closing delimiters**
+```
+} ) ]
+```
+- **Separator delimiter**
+```
+|
+```
+- **Special operator**
+```
+\
+```
+
+### Splitting the head from the tail
+
+If the operator character of the token is the separator delimiter `|`, 
+or a closing delimiter `)`, `}`, `]`,
+then the token shouldn't have a tail.
+An implementation of EarScript can choose whether
+to report this as a lexical error, or to ignore the tail.
+
+> There is no special reason why these shouldn't have a tail,
+> I simply have not found an use for them yet.
+> If you wish to implement behavior where it makes sense for
+> these delimiters to have a tail, go for it.
+
+If the operator character of the token is
+an opening delimiter `(`, `[`, `{`,
+is the special delimiter `\`,
+or is an input/output operatot `.`, `,`
+then the head contains every `[a-zA-Z]` character 
+until the first `[_0-9]` character;
+and the tail contains all characters from the
+first `[_0-9]` character to the end of the token.
+
+If the operator character is an integer, movement,
+or flow operator then the head is the operator character,
+and everything else is the tail.
+
+#### Examples
+
+The following examples follow the pattern `token head tail`.
+```
++        +
++3       +      3
+-l2      -      l2
+*_1      *      _1
+$fwd     $      fwd
+@start   @      start
+\gcd2    \gcd   2
+\nrow_x  \nrow  _x
+{r3      {r     3
+[i       [i
+(eq_x    (eq    _x
+}        }
+```
+
+### The Head
+
+The head of a token determines its functionality, for example
+- `$` Creates or moves to a table.
+- `{r` randomly chooses a branch to execute.
+- `[` Loops n times, based on the tail.
+- `.` Outputs something.
+
+The standard heads forms a basis of the functionality for EarScript.
+
+Anyone implementing EarScript may choose to include additional
+heads by creating new heads whose operator character is
+the special operator `\`, opening delimiters `(`, `[`, `{`,
+or the input/output operators `,`, `.`.
+
+This allows different machines to have different behaviors,
+and for users to customize existing machines.
 
 
+### The Tail
 
+There exists many types of tails. All except label references can be evaluated
+to an integer.
 
+- **Table references**: These refer to a table,
+and can be evaluated to the number under the table's pen.
+A table reference optionally starts with `_`,
+and otherwise the first character must be in `[a-zA-Z]`.
+The exceptions are that the following are that not allowed to be table references;
+`r`, `l`, `u`, `d`, `_r`, `_l`, `_u`, `_d`.
+A table reference evaluates to the cell under the referred table's pen.
+For example, `+X` adds the value of the cell under table `X`'s pen to the current cell.
 
+- **Label references**: These are exclusively used by the flow
+operators `@`, `'`, `"`. They refer to a place in the code.
+For example `@start` labels a place in the code as the `@start` label,
+and `'label` jumps the code execution to the `@start` label.
 
+- **Positive integers**: These are of the form `/[0-9]+/`.
+They evaluate to the integer in question. For example `+3` adds `3` to the current cell.
 
+- **Negative integers**: These are of the form `/_[0-9]+/`.
+They evaluate to a negative number. For example `+_3` adds `-3` to the current cell,
+while this can be done with `-3`, some operators do not have negative variants like
+`=` or `*`.
+
+- **Relative reference**: These are of the form `/[0-9]*[udlr]/` or `_?[udlr]`.
+They refer to cells in the current table located to the left, right, up or down.
+For example `+l` adds the value of the cell to the left of the current cell, to the current cell.
+While `+3l` adds the value of the cell three spaces to the left of the current cell, to the current cell.
+
+- **Self reference**: This is of the form `_` and evaluates to the value of the
+current cell. For example `+_` adds the value of the current cell to itself.
+
+- **Empty tail**: This always evaluates to `1`. For example `+` and `+1` are equivalent,
+and increase the value of the current cell by 1.
 
