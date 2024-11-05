@@ -529,3 +529,122 @@ An example program would be
 =_13 %5 .  # Output: 2
 ```
 
+
+
+## Table movement and manipulation
+
+The machine has a collection of tables, one of which is the current table.
+Each table has its own pen, which points at one of the cells within the table.
+
+The table's columns and rows are numbered starting at zero
+and ending at one less than the column size.
+So the column at index 0 is the first column.
+
+
+### Moving between tables, creating tables
+
+The `$` head only allows table references to be its tail.
+If the table reference is not found within the current collections
+of table references, then a new table is created for this table reference.
+Then, `$` moves to the referred table, making it the current table.
+
+There is one exception to this rule; `$` on its own returns to the
+default, initial table. 
+Furthermore, the first time `$` has a table reference,
+this links the table reference to the default table, 
+instead of creating a new table.
+
+```
+$main    # Names the default table main
+$other   # Creates table other, moves to other.
+$        # Returns to the main table.
+$other   # Moves to the table other.
+$X=3$    # Creates a new table X, moves to it, sets its value to 3, returns to main.
+=X       # Sets the current cell's value (in main) to the value in X.
+```
+
+### Resizing tables
+
+A table, by default, has size 1x1. A table can be resized, 
+but its number of rows and its number of columns must always be at least be 1.
+
+The head `\nrow` and `\ncol` change the
+number of rows and columns, respectively, in the current table.
+
+If new cells are added to the table, they must be initialized to 0.
+
+A resizing of the table should preserve the pen's position,
+if the pen would point to a position outside the table, then it
+wraps around so that the previous pen position and the new pen position
+are congruent modulo the new size of the table.
+
+```
+\ncol20   # Sets the number of columns to 20
+:13       # Moves pen to column index 13
+\ncol5    # Sets the number of columns to 5, the new pen position should be at index 3.
+```
+
+### Pen movement
+
+- `>` Moves the pen right, increasing the column index.
+- `<` Moves the pen left, decreasing the column index.
+- `^` Moves the pen up, increasing the row index.
+- `` ` `` Moves the pen down, decreasing the row index.
+- `:` Moves to a specific column.
+- `;` Moves to a specific row.
+
+By convention, we often write a table where the first
+row is the first line, the second row is the second line,
+etc. which makes it seem like going up is going down.
+
+All pen movement has wrap-around behavior;
+if the pen ends up outside the bounds of the table,
+then it moves to the position which is congruent
+modulo the dimensions of the table.
+
+For example, `:_1` moves the pen to the last column;
+and if the pen is in the last column, `>` moves it back to the first column.
+
+
+
+## Flow operators
+
+Flow operators work like labels, goto statements and function calls.
+They are used to jump from one part of the machine's code to another.
+
+The machine keeps a call stack of locations in the code to return to,
+similar call stacks in other programming languages.
+
+The `@`, `'` and `"` heads all take a label reference as its tail.
+The `~` head 
+
+- `@` Label: set the position of a label within the code,
+and otherwise does nothing.
+
+- `'` Goto: jumps the code directly to the position of the label reference,
+similar to a goto statement.
+
+- `"` Goto-Return: pushed the current code location to the call stack,
+then jumps to the position of the label reference.
+
+- `~` Return: Pops the value in the call stack and returns to the location in the code,
+if the call stack is empty jumps to the end of the program.
+
+Users should not redefine the position of a label.
+An implementation of EarScript can choose whether to report this as a syntax error,
+or to not report an error and have the goto and goto-return
+statements target the first occurrence of the label.
+
+If a user tries to jump to a non-existing label, 
+An implementation of EarScript can choose whether to report this as a syntax error,
+or to do nothing and continue with the execution of the code.
+
+```
+'start             # Jumps to the start label, skipping function declarations.
+@function + . ~    # "Defines a function", increases the current cell and prints it.
+@start \ncol2      # Start of the program, increases the size of the table.
+@loop              # Sets loop label for an infinite loop.
+"function >        # Calls function, then moves right 
+'loop              # Jumps to the start of the loop, for an infinite loop.
+                   # Output: 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, ...
+```
