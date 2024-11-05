@@ -7,6 +7,8 @@ It takes the elegant and minimalistic design of [brainfuck](https://esolangs.org
 This programming language was first implemented to create infinite procedurally generated music and charts in the rhythm game [EternAlgoRhythm](https://www.agecaf.eu/eternalgorhythm.html). While this first implementation leaves much to be desired in terms of performance, it shows the practical potential of EarScript.
 
 # Links
+- [Specification](./specification/specification.md)
+- User Reference under construction.
 - "Try Earscript Online" under construction. 
 - [EternAlgoRhythm official page](https://www.agecaf.eu/eternalgorhythm.html)
 - [EternAlgoRhythm on Steam](https://store.steampowered.com/app/2678290/EternAlgoRhythm/)
