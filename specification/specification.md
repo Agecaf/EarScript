@@ -72,6 +72,130 @@ which randomly go up or down.
 
 
 
+## EarScript Machines
+
+EarScript code determines the behavior of an EarScript **machine**.
+
+Each machine has things in common with all other machines,
+however each machine is allowed, encouraged even,
+to possess behaviour different from that of other machines.
+
+This in practice means that EarScript code should target a
+specific machine, and if this code is run by a different machine,
+the behavior intended by the developer might not match the one of the machine.
+
+A machine's internal data includes the **tables** it manages,
+as well as the **code** it executes.
+
+
+### Tables
+
+A **table** is a finite 2 dimensional array of **cells**, 
+each containing an integer, which is 0 by default.
+The table's default size is 1x1, and a table's size can never
+have fewer than one row or one column.
+
+The integers contained in a table's cell are mutable.
+
+> The integer specification used (operations, size, overflow behaviour, division by 0, NaN) 
+> is up to the machine, but I recommend using whichever is simplest to set up.
+
+Each table has a **pen**, which points at one of the cells
+inside the table. The pen can be thought of as a pointer.
+The pen can be moved around the table. 
+If a pen is moved beyond the edges of the table, it wraps around.
+
+For example
+```
+\ncol3       # Changes the number of rows to 3
+=0 > =1 > =2 # Initializes the table to [0 1 2]
+[i > .]      # Outputs: 0 1 2 0 1 2 0 1 2 0 1 2...
+```
+
+The machine can have as many tables as the user requests, in theory.
+In practice, each machine can choose a maximum size of tables,
+and a maximum number of tables.
+
+At every point in the execution of the machine's code, 
+the machine keeps track of the **current table**.
+The **current cell** is the cell pointed at by the
+current table's pen.
+
+By default a machine's initial state includes
+a single table of size 1x1.
+
+
+### The code
+
+A machine's internal state includes the code it is running,
+as this code has state of its own and may change itself.
+
+The code is usually an intermediate representation from
+EarScript, such as EarByte bytecode,
+but each implementation of EarScript can choose what this
+intermediate representation is.
+EarScript could be transpiled to static code in another
+language, in which case the "code's state" would
+simply be part of the machine's internal state.
+
+Implementations of EarScript can, but don't need to,
+include both a compiler from EarScript to an intermediate
+representation, and an implementation of machine
+that can be extended by users.
+
+
+### Running a machine
+
+Each machine might have different running behaviour.
+
+Some may choose to run its code from start to finish;
+others may loop back to the beginning once it reaches
+the end of its code, and runs until a specific amount of output is
+obtained.
+
+Provisions to avoid infinite loops should be made by
+the machine. For example, by running 1000 steps of 
+the code at a time, and if no output has been obtained
+stop the execution, otherwise continue running
+until sufficient output is obtained.
+
+
+### Customizing a machine
+
+A machine must implement a "default input" and "default output"
+functions, that are called from EarScript by `,` and `.`
+respectively. They could just do nothing.
+
+These functions should take as input a number and the machine itself,
+and do whatever they wish. The value of the number is, for example, when calling 
+`.5` from EarScript, `5`; and the default value of the number when calling `.`
+is `1`.
+
+For example, one could set up `.` to print the value of the current cell, 
+`.2` to print the current table, 
+and `.3` to print the whole machine.
+
+Or the machine instead could have `.` generate an object from the
+internal data of the table, with `.2` etc used for variations.
+
+Similarly the user may request input by using `,`,
+and the machine may implement this input as it sees fit,
+perhaps it reads from standard input,
+perhaps it gives a random number,
+perhaps it gives a number from a stack,
+perhaps it formats the table in a specific way.
+
+The machine may define custom inputs and outputs, like 
+`.print`, or `,rand`.
+
+The machine may define custom operators using
+the special delimiter, like `\sortTable`.
+
+The machine may define custom opening delimiters
+though this may be more complicated to do.
+For instance `(isTableAllZero  )`.
+
+
 
 ## Grammar Specification
 
@@ -308,4 +432,7 @@ current cell. For example `+_` adds the value of the current cell to itself.
 
 - **Empty tail**: This always evaluates to `1`. For example `+` and `+1` are equivalent,
 and increase the value of the current cell by 1.
+
+
+
 
