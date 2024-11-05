@@ -787,3 +787,46 @@ modulo the number of branches.
 An implementation of EarScript may add additional delimiters,
 such as custom conditionals like `(isTableAllZero`.
 
+
+
+
+# Meta EarScript
+
+EarScript files use the `.ear` extension.
+
+In EarScript, comments use the `# ` notation.
+
+A commend in the first line could be used as a shebang to choose the interpreter to use for
+an EarScript file.
+
+Comment lines could be used with the C pre-processor to
+add macros to EarScript such as `#include`, `#define`, `#ifdef`, etc.
+
+More generally, if an implementation of EarScript wants to add macros,
+they can do so through special comments.
+
+Comments can also be used for designating nodes/blocks in a
+visual programming language version of EarScript, as does
+the EarVis implementation.
+
+Here's an example of a node used in EternAlgoRhythm's EarVis,
+the first comment contains information on the position and
+size of the node in the Graph-Node editor,
+the first label is the name of the node,
+the last comment mentions there's 1 possible output,
+and the last goto statement links a block to another.
+
+```
+###N\\p1\\880\\220\\177\\105
+@p1 $
+$tempo=174$
+###O\\1
+'b2
+```
+
+This allows one to edit EarScript programs in
+a visual way, while still saving these programs
+as EarScript files.
+
+
+
