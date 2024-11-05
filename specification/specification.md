@@ -3,7 +3,7 @@
 Todo: Table of contents.
 
 
-## Introduction
+# Introduction
 
 This is the language specification for the EarScript programming language.
 This specification is intended for anyone interested in
@@ -17,7 +17,7 @@ can be very easy to customize, making EarScript potentially
 a good option for a scripting language that is compiled at runtime.
 
 
-### Overview
+## Overview
 
 EarScript's machines contain **tables**, each is a 2 dimensional array of integers.
 Each of these integers is in a **cell**.
@@ -35,7 +35,7 @@ These broadly use `()` for `if/else`-like conditional control flow,
 and `{}` for `switch`-like branching control flow.
 
 
-### Use Cases
+## Use Cases
 
 EarScript should be easy to embed into applications, where virtual machines can be made to sandbox the execution of EarScript code.
 
@@ -49,7 +49,7 @@ EarScript should be useful to generate anything that, like musical notes,
 can be represented by integers.
 
 
-### Preliminary examples
+## Preliminary examples
 
 As an equivalent to "Hello World" program, we simply output the number from which all meaning can be derived.
 ```
@@ -72,7 +72,7 @@ which randomly go up or down.
 
 
 
-## EarScript Machines
+# EarScript Machines
 
 EarScript code determines the behavior of an EarScript **machine**.
 
@@ -88,7 +88,7 @@ A machine's internal data includes the **tables** it manages,
 as well as the **code** it executes.
 
 
-### Tables
+## Tables
 
 A **table** is a finite 2 dimensional array of **cells**, 
 each containing an integer, which is 0 by default.
@@ -125,7 +125,7 @@ By default a machine's initial state includes
 a single table of size 1x1.
 
 
-### The code
+## The code
 
 A machine's internal state includes the code it is running,
 as this code has state of its own and may change itself.
@@ -144,7 +144,7 @@ representation, and an implementation of machine
 that can be extended by users.
 
 
-### Running a machine
+## Running a machine
 
 Each machine might have different running behaviour.
 
@@ -160,7 +160,7 @@ stop the execution, otherwise continue running
 until sufficient output is obtained.
 
 
-### Customizing a machine
+## Customizing a machine
 
 A machine must implement a "default input" and "default output"
 functions, that are called from EarScript by `,` and `.`
@@ -197,7 +197,7 @@ For instance `(isTableAllZero  )`.
 
 
 
-## Grammar Specification
+# Grammar Specification
 
 The following specification uses EBNF notation with ReGex in `/.../`.
 
@@ -246,7 +246,7 @@ be made of exclusively of a sequence of tokens,
 optionally separated by whitespace and newlines.
 
 
-### Lexical errors
+## Lexical errors
 
 If there's a program where there's a group of alphanumerical characters
 not preceded by an operator character, such as
@@ -266,7 +266,7 @@ character or alphanumeric characters, and which are outside of a comment, are
 - Ignored.
 
 
-### Syntax errors
+## Syntax errors
 
 If `{`, `[` and `(` are not matched with the appropriate `}`, `]` and `)`,
 this constitutes a syntax error.
@@ -280,7 +280,7 @@ error, or whether to recover by doing all of the following;
 
 
 
-## Anatomy of a Token
+# Anatomy of a Token
 
 Tokens in EarScript are slightly different compared to tokens in other programming languages.
 Each token has a **head** and a **tail**, the head usually has information on what
@@ -290,7 +290,7 @@ For example, in `+3`, the head is `+` and the tail is `3`.
 
 If a token has no tail, like `+` or `>`, then the tail's value is implicitly `1`.
 
-### Operator Character
+## Operator Character
 
 The first character of a token is its **operator character**. 
 The operator character is always part of the head of the token,
@@ -332,7 +332,7 @@ $ > < ^ ` : ;
 \
 ```
 
-### Splitting the head from the tail
+## Splitting the head from the tail
 
 If the operator character of the token is the separator delimiter `|`, 
 or a closing delimiter `)`, `}`, `]`,
@@ -358,7 +358,7 @@ If the operator character is an integer, movement,
 or flow operator then the head is the operator character,
 and everything else is the tail.
 
-#### Examples
+### Examples
 
 The following examples follow the pattern `token head tail`.
 ```
@@ -376,7 +376,7 @@ $fwd     $      fwd
 }        }
 ```
 
-### The Head
+## The Head
 
 The head of a token determines its functionality, for example
 - `$` Creates or moves to a table.
@@ -395,7 +395,7 @@ This allows different machines to have different behaviors,
 and for users to customize existing machines.
 
 
-### The Tail
+## The Tail
 
 There exists many types of tails. All except label references can be evaluated
 to an integer.
@@ -441,9 +441,10 @@ and increase the value of the current cell by 1.
 
 # Standard Heads
 
-The remainder of this document specifies the behavior of each of the standard token heads.
+In this section we specify the behavior of each of the standard token heads.
 Keep in mind that each machine may implement additional heads,
 examples are provided.
+
 
 ## Assignment
 
@@ -451,6 +452,45 @@ The head `=` sets the value of the current cell to the value of the token's tail
 
 For example the token `=` sets the current cell's value to `1`,
 while the `=42` token sets it to `42`.
+
+
+## Input / Output
+
+The head `.` calls the machine's standard output, which may
+use the tail or ignore its value.
+Similarly, the head `,` call's the machine's standard input.
+
+Each machine may optionally implement additional
+output heads such as `.print`,
+or input heads such as `,dayOfMonth`.
+
+Users can expect output methods to not make any
+changes to the machine's tables, and use the 
+current cell, current table, or state of all tables
+to ouptut something.
+
+Users can expect input methods to not depend on the 
+state of the tables, and to make changes
+to the current cell, current table, or state of all tables.
+
+For methods that consider the state of the table
+and make changes to the table, machines should
+instead consider implementing heads
+which use the special operator `\`,
+such as `\sortRow`.
+
+### Example
+
+Suppose that the machine's implementation has
+`.` print the current cell to standard output,
+`.2` print the current table to standard ouput.
+
+```
+\ncol3          # Sets the number of columns to 3
+=1 > =2 > =3    # sets the table to  [1 2 3]
+.               # Output: 3
+.2              # Output: [1 2 3]
+```
 
 ## Operations
 
@@ -465,13 +505,27 @@ combining it with the value of the token's tail `b`.
 - `!` Bitwise not of `a` and `b`.
 - `&` Bitwise and of `a` and `b`.
 - `?` Bitwise or of `a` and `b`.
-
-The following are optional additions.
-- `\pow` Power of `a` to the power `b`.
-- `\log` Floor of logarithm of `a` with base the number `b`.
-- `\xor` Bitwise xor of `a` and `b`.
+- `\pow` Power of `a` to the power `|b|`.
 - `\min` Minimum of `a` and `b`.
 - `\max` Maximum of `a` and `b`.
+
+The following are optional additions.
+- `\log` Floor of logarithm of `|a|` with base the number `|b|`, or `-1` if `a` is `0`.
+- `\xor` Bitwise xor of `a` and `b`.
 - `\gcd` Positive greatest common divisor of `a` and `b`.
 - `\lcm` Positive lowest common multiple of `a` and `b`.
+- `\abs` Absolute value of `a`.
+- `\sgn` `1` if `a` is positive, `-1` if `a` is negative, `0` if `a` is zero.
+
+An example program would be
+```
+=0 .       # Output: 0
++  .       # Output: 1
+-2 .       # Output: -1
+*_1.       # Output: 1
+=13 /5 .   # Output: 2
+=13 %5 .   # Output: 3
+=_13 /5 .  # Output: -3
+=_13 %5 .  # Output: 2
+```
 
