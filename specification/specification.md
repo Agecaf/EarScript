@@ -436,3 +436,42 @@ and increase the value of the current cell by 1.
 
 
 
+
+
+
+# Standard Heads
+
+The remainder of this document specifies the behavior of each of the standard token heads.
+Keep in mind that each machine may implement additional heads,
+examples are provided.
+
+## Assignment
+
+The head `=` sets the value of the current cell to the value of the token's tail.
+
+For example the token `=` sets the current cell's value to `1`,
+while the `=42` token sets it to `42`.
+
+## Operations
+
+These heads modify the current cell's value `a` by
+combining it with the value of the token's tail `b`.
+
+- `+` Addition of `a` and `b`.
+- `-` Subtraction of `a` minus `b`.
+- `*` Multiplication of `a` and `b`.
+- `/` Integer division of `a` divided by `b`, the highest integer which when multiplied by `b` is less than or equal to `a`.
+- `%` Integer positive modulo of `a` modulo `b`, the integer between `0` inclusive and `b` exclusive which has the same remainder as `a` when divided by `b`.
+- `!` Bitwise not of `a` and `b`.
+- `&` Bitwise and of `a` and `b`.
+- `?` Bitwise or of `a` and `b`.
+
+The following are optional additions.
+- `\pow` Power of `a` to the power `b`.
+- `\log` Floor of logarithm of `a` with base the number `b`.
+- `\xor` Bitwise xor of `a` and `b`.
+- `\min` Minimum of `a` and `b`.
+- `\max` Maximum of `a` and `b`.
+- `\gcd` Positive greatest common divisor of `a` and `b`.
+- `\lcm` Positive lowest common multiple of `a` and `b`.
+
