@@ -441,7 +441,8 @@ and increase the value of the current cell by 1.
 
 # Standard Heads
 
-In this section we specify the behavior of each of the standard token heads.
+In this section we specify the behavior of each of the standard token heads
+which are not delimiters.
 Keep in mind that each machine may implement additional heads,
 examples are provided.
 
@@ -648,3 +649,141 @@ or to do nothing and continue with the execution of the code.
 'loop              # Jumps to the start of the loop, for an infinite loop.
                    # Output: 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, ...
 ```
+
+In theory, there could be as many labels as the user wishes,
+but in practice there may be a maximum number of labels,
+an implementation of EarScript can choose this maximum.
+
+
+
+
+# Delimiter Heads
+
+Delimiter heads are the most complex part of EarScript. 
+They also provide some of its most powerful features.
+
+Loosely speaking,
+
+- `[` heads are loops, with a single banch,
+- `(` heads are conditionals, with either one or two branches,
+- `{` heads are switches, with two or more branches.
+
+Where a **branch** is what is between
+two associated delimiters, including the separator delimiter `|`
+for when there's two or more branches.
+
+```
+{r=1|=2|=3|=4}   # This has 4 branches.
+(eq0 +3 *_2 .)   # This has a single branch.
+[i {=0|=3} .]    # The [i loop has a single branch, the interior { switch has two branches.
+```
+
+
+## Loop heads
+
+Loops are heads whose operator character is `[`.
+They have a single branch and will loop back to
+the beginning of the branch under certain conditions.
+
+- `[` tail of value 1, will loop back to the beginning if once `]`
+is reached, the current cell's value is nonzero.
+This matches the looping behavior of `[]` in brainfuck,
+but not the conditional behavior. `[]` in brainfuck
+is equivalent to `([])` in EarScript.
+
+- `[` with a positive tail larger than `1` will loop
+as many times as the value of the tail.
+
+- `[i` is an infinite loop.
+
+- `[r` will loop back to the beginning with probability
+`b/(1+b)` where `b` is the value of the tail.
+
+```
+[4 +.]      # Output: 1, 2, 3, 4.
+[-.]        # Output: 3, 2, 1, 0.
+=0 [r4+] .  # Output: a number around 4.
+=42 [i .]   # Output: 42, 42, 42, 42, 42, 42, ...
+```
+
+Note that loops can be "escaped" through flow operators.
+
+
+## Conditional heads
+
+Conditionals are heads whose operator character is `(`.
+
+Conditionals usually test whether a condition is true.
+
+If the conditional has a single branch,
+then if the condition is true the branch is executed, 
+and if the condition is false, the branch is skipped.
+This is similar to `if` statements in other languages.
+
+If the conditional has two branches,
+then if the condition is true then the
+first branch is executed and the second branch is skipped;
+and if the condition is false then the
+first branch is skipped and the second branch is executed.
+
+Let `a` be the value of the current cell and `b` be the value of the tail.
+- `(` True if `a` is nonzero.
+- `(eq` True if `a` and `b` are equal.
+- `(ne` True if `a` and `b` are not equal.
+- `(lt` True if `a` is less than `b`.
+- `(gt` True if `a` is greater than `b`.
+- `(le` True if `a` is less than or equal to `b`.
+- `(ge` True if `a` is greater than or equal to `b`.
+- `(div` True if `a` is a multiple of `b`.
+
+The following has conditions which change each time the code returns to this token.
+- `(x` Expend; True the first `b` times it is executed, then False.
+- `(c` Cycle/Alternate; True `b` times, then false once, then true `b` times again, then false once, etc.
+- `(r` True with probability `1/(b+1)`, false with probability `b/(b+1)`.
+
+```
+[10 (x3 +) .]   # Output: 1, 2, 3, 3, 3, 3, 3, 3, 3, 3.
+[10 (c3 +) .]   # Ouptut: 1, 2, 3, 3, 4, 5, 6, 6, 7, 8.
+[10 (r3 +) .]   # Output Example: 1, 1, 1, 2, 2, 2, 2, 2, 2, 2.
+                # Output Example: 0, 0, 0, 1, 1, 2, 2, 2, 2, 3.
+```
+
+
+## Switch heads
+
+Switch heads select between two or more branches,
+and execute this branch.
+
+Let `n` be the value of the tail.
+- `{` Sequencer. Cycles through each branch, repeating each `n` times before moving to the next.
+```
+[9 {=1|=2|=3} . ]   # Output: 1, 2, 3, 1, 2, 3, 1, 2, 3.
+[8 {2 =0|=1} . ]    # Output: 0, 0, 1, 1, 0, 0, 1, 1.
+```
+
+- `{r` Randomizer. Randomly chooses a branch. If `n` is zero, only makes the random choice once, and repeats this choice onwards.
+If `n` is larger than one, it repeats each random choice `n` times before re-randomizing.
+
+```
+[8 {r0=1|=2|=3} . ]  # Output Example: 3, 3, 3, 3, 3, 3, 3, 3.
+[8 {r=1|=2|=3} . ]   # Output Example: 2, 1, 1, 3, 1, 3, 3, 2.
+[8 {r2=1|=2|=3} . ]  # Output Example: 1, 1, 3, 3, 3, 3, 2, 2.
+```
+
+- `{s` Shuffler. Shuffles the branches, then cycles through them.
+If `n` is zero, shuffles once. Otherwise shuffles every `n` times.
+```
+[12 {s0=1|=2|=3} . ]  # Output Example: 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 
+[12 {s=1|=2|=3} . ]   # Output Example: 2, 1, 1, 3, 1, 3, 3, 2, 2, 2, 2, 1,
+[12 {s6=1|=2|=3} . ]  # Output Example: 2, 3, 1, 2, 3, 1, 1, 2, 3, 1, 2, 3,
+```
+
+- `{m` should select the branch whose index matches the value of the current cell
+modulo the number of branches.
+
+
+## Custom delimiters
+
+An implementation of EarScript may add additional delimiters,
+such as custom conditionals like `(isTableAllZero`.
+
