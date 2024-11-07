@@ -503,7 +503,7 @@ combining it with the value of the token's tail `b`.
 - `*` Multiplication of `a` and `b`.
 - `/` Integer division of `a` divided by `b`, the highest integer which when multiplied by `b` is less than or equal to `a`.
 - `%` Integer positive modulo of `a` modulo `b`, the integer between `0` inclusive and `b` exclusive which has the same remainder as `a` when divided by `b`.
-- `!` Bitwise not of `a` and `b`.
+- `!` Bitwise not of `a`.
 - `&` Bitwise and of `a` and `b`.
 - `?` Bitwise or of `a` and `b`.
 - `\pow` Power of `a` to the power `|b|`.
