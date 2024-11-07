@@ -210,13 +210,13 @@ whitespace  = "\t" | " ";
 switch      = /{\w*/, { expression, "|" }, expression, "}";
 loop        = /\[\w*/, expression, "]";
 conditional = /(\w*/, { expression, "|" }, expression, ")";
-other_token = /[+\-*\/!&?=><:^`;$@'"~\\.,\\]\w*/;
+other_token = /[+\-*\/%!&?=><:^`;$@'"~\\.,\\]\w*/;
 ```
 
 A **token** uses the following regex expressions;
 
 ```regex
-/[+\-*\/!&?=><:^`;$@'"~\\.,|()\[\]{}]\w*/
+/[+\-*%\/!&?=><:^`;$@'"~\\.,|()\[\]{}]\w*/
 ```
 
 **Tokens** include `other_token` as well as the **delimiters** of `switch`, `loop`, and `conditional`.
@@ -226,7 +226,7 @@ for the **opening delimiters**.
 
 Each token begins with one of the following **opertator characters**;
 ```
-+ - * / ! & ? = > < : ^ ` ; $ @ ' " ~ \ . , | ( ) [ ] { }
++ - * / % ! & ? = > < : ^ ` ; $ @ ' " ~ \ . , | ( ) [ ] { }
 ```
 
 Each token is made of an operator character followed by alphanumeric characters
@@ -301,7 +301,7 @@ The types of operator characters are
 
 - **Integer operators**
 ```
-= + - * / ! & ?
+= + - * / ! & ? %
 ```
 - **Movement operators**
 ```
