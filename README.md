@@ -7,15 +7,46 @@ It takes the elegant and minimalistic design of [brainfuck](https://esolangs.org
 This programming language was first implemented to create infinite procedurally generated music and charts in the rhythm game [EternAlgoRhythm](https://www.agecaf.eu/eternalgorhythm.html). While this first implementation leaves much to be desired in terms of performance, it shows the practical potential of EarScript.
 
 # Links
-- [Specification](./specification/specification.md)
+- [Try EarScript Online!](https://agecaf.github.io/EarScript/tryonline/)
 - User Reference under construction.
-- "Try Earscript Online" under construction. 
+- [Specification](./specification/specification.md)
 - [EternAlgoRhythm official page](https://www.agecaf.eu/eternalgorhythm.html)
 - [EternAlgoRhythm on Steam](https://store.steampowered.com/app/2678290/EternAlgoRhythm/)
 
 # What does EarScript look like?
-(examples will be added).
+```
+# This is a comment
+=42 .   # Assignment to 42, output.
+```
+```
+# Fibonacci Example
+\ncol2 =1 > =1 >    # Initialize a table to [1 1]
+[10 . +l > ]        # Loop 10 times, output, add the cell to the left, move right
+```
+```
+# Sequencers
+[12 {=1|=2|=3} .]   # Output: 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3,
 
+# Randomizers
+[12 {r=1|=2|=3} .]   # Output Example: 1, 2, 1, 1, 1, 3, 3, 1, 2, 1, 2, 2, 
+```
+```
+'start    # Jumps to label start
+@func     # Label func
++.        # Increases value, outputs
+~         # Return
+@start    # Label Start
+=42         # Set value to 42
+[3 "func ]  # Loop 3 times, call func and return
+```
+```
+$main                # Name default table
+$other               # Create table other
+$                    # Return to main table
+$other=4$            # Move to table other, set it to 4, return to main table
++other*other*other   # Use table value
+.                    # Output: 64 = 4^3
+```
 # Earscript machines
 
 EarScript is run by machines (often virtual). Each machine may take EarScript code directly, or it may take an intermediate representation like EarByte, a bytecode used in EternAlgoRhythm's machines.
