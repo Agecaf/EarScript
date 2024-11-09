@@ -13,6 +13,7 @@ This programming language was first implemented to create infinite procedurally 
 - [Specification](./specification/specification.md)
 - [EternAlgoRhythm official page](https://www.agecaf.eu/eternalgorhythm.html)
 - [EternAlgoRhythm on Steam](https://store.steampowered.com/app/2678290/EternAlgoRhythm/)
+- [EarScript for EternAlgoRhythm video tutorials](https://www.youtube.com/playlist?list=PLGC7JEgOH2Ulp3hBY0oaLczdxvPgD0neI)
 
 # What does EarScript look like?
 ```
@@ -62,7 +63,9 @@ EarScript was initially designed to be used through EarVis, a node-based visual 
 
 EarVis actually uses EarScript to save its files, with meta comments used to designate blocks and what their position and size is in the editor. 
 
-By creating similar editors, the way the user writes EarScript can be adjusted just as much as the way the machine runs it. 
+By creating similar editors, the way the user writes EarScript can be adjusted just as much as the way the machine runs it.
+
+[Here's some videos of EarScript's visual editor in action](https://www.youtube.com/playlist?list=PLGC7JEgOH2Ulp3hBY0oaLczdxvPgD0neI).
 
 # The future of EarScript
 
