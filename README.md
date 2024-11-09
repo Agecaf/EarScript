@@ -8,6 +8,7 @@ This programming language was first implemented to create infinite procedurally 
 
 # Links
 - [Try EarScript Online!](https://agecaf.github.io/EarScript/tryonline/)
+- [Getting Started: Beginner's Guide](https://github.com/Agecaf/EarScript/wiki).
 - User Reference under construction.
 - [Specification](./specification/specification.md)
 - [EternAlgoRhythm official page](https://www.agecaf.eu/eternalgorhythm.html)
