@@ -848,6 +848,7 @@ function step(vm) {
             return
         
         // Conditionals
+        case "(": vm.currentCodeIdx = tk.delimiters[t[t.x+t.y*t.w] != 0 ? 0: 1]; break
         case "(eq": vm.currentCodeIdx = tk.delimiters[t[t.x+t.y*t.w] == v ? 0: 1]; break
         case "(ne": vm.currentCodeIdx = tk.delimiters[t[t.x+t.y*t.w] != v ? 0: 1]; break
         case "(lt": vm.currentCodeIdx = tk.delimiters[t[t.x+t.y*t.w] <  v ? 0: 1]; break
