@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Try EarScript!</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+<div id="container">
+  <p style="color: #bbb;font-size: 20pt;"><b>Try <a href="https://github.com/Agecaf/EarScript">EarScript</a> online!</b></p>
+<div id="editor"></div>
+<br>
+<script>let buttonCompile = () => {}; let buttonRun = () => {}; let buttonStep = () => {}; </script>
+<button onclick="buttonCompile()">Compile</button> 
+<button onclick="buttonRun()">Run</button>
+<button onclick="buttonStep()">Step</button>
+<br><br>
+<div id="tableview"></div>
+<div id="output">Output goes here.</div></div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.4/ace.js"></script>
+    <script type="module"> import codejar from 'https://cdn.jsdelivr.net/npm/codejar@4.2.0/+esm' </script>
+    <script type="module" src="earscript/earscript.js"></script>
+  </body>
+</html>
