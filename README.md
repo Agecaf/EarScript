@@ -48,7 +48,7 @@ $other=4$            # Move to table other, set it to 4, return to main table
 +other*other*other   # Use table value
 .                    # Output: 64 = 4^3
 ```
-# Earscript machines
+# EarScript machines
 
 EarScript is run by machines (often virtual). Each machine may take EarScript code directly, or it may take an intermediate representation like EarByte, a bytecode used in EternAlgoRhythm's machines.
 
